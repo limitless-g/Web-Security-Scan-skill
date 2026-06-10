@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# NVD Cache (large binary, user downloads separately)
+nvd_cache.db
+nvd_feeds/
+*.db
+
+# Scan outputs
+*_report.json
+*_report.html
+*.json.gz
+scan_results/
+output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp
+/tmp/
+*.tmp
+*.log
+
+# Playwright browsers (user installs separately)
+.playwright/
