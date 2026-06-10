@@ -120,6 +120,16 @@ Exit codes: `0`=Clean, `2`=Medium, `3`=High, `4`=Critical (blocks pipeline).
 
 **This tool is for authorized security testing ONLY.** You must have written authorization from the target system owner before use. Unauthorized scanning is illegal in most jurisdictions. The authors assume no liability for misuse.
 
+All product names, logos, and brands mentioned in this document are property of their respective owners. "Burp Suite" is a trademark of PortSwigger Ltd. "Invicti" is a trademark of Invicti Ltd. Comparative analysis is based on publicly available information and independent evaluation.
+
+**Attributions:**
+- HTTP Request Smuggling detection based on research by James Kettle (PortSwigger Research)
+- OWASP Top 10 © The OWASP Foundation (CC-BY-SA)
+- MITRE ATT&CK © The MITRE Corporation
+- NVD/CVE data provided by NIST National Vulnerability Database
+- PCI-DSS is a standard of the PCI Security Standards Council. This tool is NOT an ASV-certified scanner.
+- HIPAA/SOC2/ISO 27001 compliance mapping is for reference only — not an official certification.
+
 ---
 
 ## 中文
@@ -184,3 +194,5 @@ python scripts/web_auto_scanner.py --url $TARGET_URL --passive-only
 ### ⚠️ 法律声明
 
 **本工具仅限授权安全测试使用。** 使用前必须获得目标系统所有者的书面授权。未经授权的扫描在大多数国家和地区属于违法行为。作者不对任何滥用行为承担责任。
+
+所有提及的产品名称、商标均为各自所有者的财产。竞品对比基于公开信息和独立评估。PCI-DSS 为 PCI 安全标准委员会的标准——本工具非 ASV 认证扫描器。HIPAA/SOC2/ISO 27001 合规映射仅供参考。漏洞检测方法基于 OWASP、PortSwigger Research、MITRE ATT&CK 等公开安全研究成果。
