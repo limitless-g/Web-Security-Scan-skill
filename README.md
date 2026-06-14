@@ -1,198 +1,272 @@
-# Web Security Full Assessment v5.5 — Tier-1 DAST Engine
+# Web Security Scanner v8.0 — Production DAST Engine
 
 <p align="center">
-  <b>Language:</b> <a href="#english">English</a> | <a href="#chinese">中文</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/version-5.5.0-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-8.0.0-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
   <img src="https://img.shields.io/badge/python-3.9%2B-orange" alt="Python">
   <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey" alt="Platform">
-  <img src="https://img.shields.io/badge/categories-50%2B-red" alt="Vulnerability Coverage">
+  <img src="https://img.shields.io/badge/detectors-30-red" alt="Detectors">
+  <img src="https://img.shields.io/badge/tests-250-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/payloads-500%2B-purple" alt="Payloads">
+</p>
+
+<p align="center">
+  <b>English</b> · <a href="#chinese">中文</a> · <a href="SKILL.md">Claude Code Skill</a>
 </p>
 
 ---
 
-## English
+Open-source DAST engine for web application security assessment. Production-ready: 30 modular detectors, adaptive WAF bypass, OOB blind detection (HTTP+DNS), API security analysis, exploit verification, and compliance reporting for PCI-DSS, HIPAA, SOC2, and ISO 27001.
 
-A Tier-1 open-source Web Application DAST (Dynamic Application Security Testing) scanner. 50+ vulnerability categories, passive traffic analysis, CVE knowledge base (200K+ via NVD), compliance reporting for PCI-DSS/HIPAA/SOC2/ISO 27001, professional HTML reports with dashboards, YAML-based plugin system, and SAML 2.0 9-vector deep attack coverage.
+## Quick Start
 
-### Quick Start
-
-**With Claude Code (one command):**
 ```bash
-git clone https://github.com/xxx/web-security-full.git ~/.claude/skills/web-security-full
-pip install playwright pyyaml && playwright install chromium
-# Done. Now type /web-security-full in Claude Code.
+# Install (Python 3.9+)
+python install.py
+
+# Full security scan
+python cli.py --url https://your-app.com
+
+# Passive-only (zero attack traffic, production safe)
+python cli.py --url https://your-app.com --passive-only
+
+# PCI-DSS compliance scan
+python cli.py --url https://your-app.com --policy pci-dss --compliance pci --fail-on critical
+
+# Docker
+docker compose build && docker compose run --rm scanner --url https://your-app.com
 ```
 
-**Without Claude Code (standalone):**
-```bash
-# 1. Install
-pip install playwright pyyaml
-playwright install chromium
+## What It Detects
 
-# 2. Scan
-python scripts/web_auto_scanner.py --url https://target.com --output report.json
+| Category | Detectors | Highlights |
+|----------|:---------:|------------|
+| **Injections** | 6 | SQLi (error/time/boolean/UNION), NoSQL (7 operators), CMDi (12 separators), SSTI (11 engines), XXE (file/OOB/XInclude), SSRF (13 IP bypasses) |
+| **Auth & Access** | 5 | CSRF (token entropy + Origin validation), OAuth (6 redirect_uri bypasses), SAML (XSW 1-8), IDOR (sequential + path-based), JWT (6 attack vectors) |
+| **Infrastructure** | 7 | Security headers, CORS misconfig, TLS audit, WebSocket, HTTP smuggling, Cache poisoning, Clickjacking |
+| **Data Exposure** | 8 | Secrets detection (28 patterns), sensitive files (100+ paths), debug endpoints (30+), directory listing, open redirect, JS storage, file upload |
+| **API Security** | 1 | OpenAPI/Swagger/GraphQL discovery, mass assignment, BOLA, rate limiting, parameter fuzzing |
+| **Enterprise** | 3 | Exploit verification (safe PoC), tech stack fingerprinting (31 JS + 8 server + 4 CMS), passive proxy (JWT/Cookie/CSP audit) |
 
-# 3. Report
-python scripts/html_reporter.py --report report.json --output report.html
-```
+**WAF Bypass**: 8-type fingerprinting (Cloudflare, AWS WAF, Imperva, ModSecurity, Akamai, Alibaba, Sucuri, F5 ASM) with adaptive bypass strategies and effectiveness tracking.
 
-### Features
+**OOB Blind Detection**: Built-in HTTP + DNS callback server for blind SSRF, XXE, SQLi, and command injection.
 
-| Category | Coverage |
-|----------|----------|
-| **Injections** | SQL, NoSQL, Command, SSTI, XXE, XSS (Reflected/Stored/DOM/AJAX) |
-| **Auth** | JWT, OAuth 2.0, SAML 2.0 (9 vectors), CSRF, Default Credentials |
-| **Access Control** | IDOR (5 patterns), Vertical PrivEsc, Array Injection |
-| **Transport** | TLS 1.0-1.3, Cipher Suites, HSTS, Certificates, OCSP |
-| **Config** | 9 Security Headers, CORS (5-step), Error Leakage, Version Disclosure |
-| **Cloud** | Alibaba Cloud, AWS, Azure, GCP metadata SSRF |
-| **Frontend** | DOM XSS, PostMessage, Prototype Pollution, CSS Injection |
-| **Protocol** | Request Smuggling (3 variants), Cache Poisoning, HTTP/2 (6 vectors), WebSocket |
-| **Business Logic** | Race Condition, Price Manipulation, 2FA Bypass, Workflow Skip |
-| **Info Leak** | .git/.env/Dockerfile/Source/Logs/API Keys |
-| **File Ops** | Upload RCE, Path Traversal, XML Injection |
+## Scan Policies
 
-### Scripts
+| Policy | Destructive | Rate | Pages | Use Case |
+|--------|:---:|:---:|:---:|----------|
+| `safe` | No | 2/s | 50 | Production passive monitoring — zero attack traffic |
+| `owasp-top10` | No | 3/s | 100 | OWASP Top 10 compliance audit |
+| `pci-dss` | Yes | 4/s | 200 | Cardholder data environment assessment |
+| `full` | Yes | 6/s | 500 | Comprehensive penetration test |
+| `quick` | No | 10/s | 20 | 5-minute triage |
+| `api-only` | Yes | 5/s | 50 | API-focused (OpenAPI/GraphQL aware) |
+
+## CLI Reference
 
 ```
-scripts/
-├── web_auto_scanner.py     Main engine (19 detection methods + 6 engine components)
-├── cve_matcher.py          CVE knowledge base (42 built-in + NVD API)
-├── nvd_downloader.py       NVD 200K+ CVE downloader (SQLite cache)
-├── compliance_reporter.py  PCI-DSS / HIPAA / SOC2 / ISO 27001 reports
-├── html_reporter.py        Professional HTML reports (dashboard + heatmap)
-├── openapi_parser.py       Swagger/GraphQL schema parser + test case generator
-└── plugin_loader.py        YAML plugin engine (hot-reload, 12 condition types)
+python cli.py --url URL [OPTIONS]
 
-plugins/
-├── sensitive_files.yaml    .git/.env/Dockerfile leak detection
-├── auth_bypass.yaml        JWT alg:none + default credentials
-├── info_leak.yaml          phpinfo/Actuator exposure
-├── injection_probes.yaml   XMLRPC SSRF + GraphQL introspection
-└── cloud_config.yaml       Alibaba Cloud/AWS metadata probes
+Required:
+  --url          Target URL to scan
+
+Output:
+  --output       Output file path (default: report.json)
+  --no-html      Skip HTML report generation
+
+Scan Control:
+  --policy       Scan policy: safe|owasp-top10|pci-dss|full|quick|api-only
+  --max-pages    Max pages to crawl (default: 150)
+  --timeout      Request timeout in ms (default: 15000)
+  --no-spa       Disable SPA/JS rendering
+  --passive-only Passive analysis only (zero attack traffic)
+  --no-browser   Curl-only mode (no Playwright required)
+
+Enterprise:
+  --proxy        HTTP/SOCKS proxy (e.g., http://corp-proxy:8080)
+  --custom-header Custom header "Key:Value" (repeatable)
+  --resume       Resume from last checkpoint
+  --internal     Internal network target (adjusts baseline)
+
+CI/CD:
+  --fail-on      Exit on: critical(4)|high(3)|medium(2)
+  --compliance   Generate: pci|hipaa|soc2|iso27001
+
+Other:
+  --oob-port     OOB callback server port (default: 8889)
+  --log-level    DEBUG|INFO|WARNING|ERROR (default: INFO)
 ```
 
-### CI/CD Integration
+## CI/CD Integration
 
 ```yaml
 # GitHub Actions
-- name: DAST Scan
+- name: DAST Security Scan
   run: |
-    pip install playwright pyyaml && playwright install chromium
-    python scripts/web_auto_scanner.py --url ${{ secrets.TARGET }} --quick --output report.json --fail-on critical
-    python scripts/html_reporter.py --report report.json --output report.html
+    pip install playwright pyyaml aiohttp
+    playwright install chromium
+    python cli.py --url ${{ secrets.TARGET }} \
+      --policy pci-dss --fail-on critical --compliance pci
 - uses: actions/upload-artifact@v4
-  with: { name: security-report, path: report.html }
+  with:
+    name: security-report
+    path: report.*
+
+# GitLab CI
+dast:
+  stage: security
+  script:
+    - pip install playwright pyyaml aiohttp && playwright install chromium
+    - python cli.py --url $TARGET_URL --policy full --fail-on high
+  artifacts:
+    paths: [report.json, report.html]
 ```
 
-Exit codes: `0`=Clean, `2`=Medium, `3`=High, `4`=Critical (blocks pipeline).
+Exit codes: `0`=clean, `2`=medium+, `3`=high+, `4`=critical (blocks pipeline).
 
-### Comparison with Commercial Scanners
+## Test Suite
 
-| Capability | v5.5 | Burp Pro | Invicti |
-|------------|:---:|:---:|:---:|
-| Vuln Coverage (50+) | ✓ | ✓ | ✓ |
-| Passive Scanning | ✓ | ✓ | ✗ |
-| CVE Database (200K+) | ✓ | ✗ | ✓ |
-| Plugin System | YAML | BApp (Java) | ✗ |
-| Compliance (4 standards) | ✓ | Plugin | ✓ |
-| HTML Dashboard | ✓ | ✓ | ✓ |
-| CI/CD | ✓ | ✓ | ✓ |
-| SAML Depth (9 vectors) | ✓ | Plugin | ✓ |
-| OAuth Full-chain | ✓ | Plugin | ✓ |
-| AI Context Awareness | ✓ | ✗ | ✗ |
-| Zero Deployment | ✓ | ✗ | ✗ |
-| **Cost** | **$0** | $4K-10K/yr | $6K-50K/yr |
+```bash
+# Unit tests (230 tests, < 1 second)
+python -m pytest tests/ -k "not integration" -q
 
-### Requirements
+# Integration tests (20 tests, auto-starts test server)
+python -m pytest tests/test_integration_full.py -v
 
-- Python 3.9+
-- Playwright (Chromium ~150MB download on first install)
-- Disk: ~100MB (with NVD CVE database)
-- Network: target site access required
-- NVD API key: optional (free from https://nvd.nist.gov/developers/request-an-api-key)
+# Full suite
+python -m pytest tests/ -q
+```
 
-### ⚠️ Legal Disclaimer
+## Architecture
 
-**This tool is for authorized security testing ONLY.** You must have written authorization from the target system owner before use. Unauthorized scanning is illegal in most jurisdictions. The authors assume no liability for misuse.
+```
+web-security-full/
+├── cli.py                       CLI entry point
+├── scanner.py                   Orchestrator (lifecycle, spider, detection dispatch)
+├── install.py                   One-click setup
+├── Dockerfile / docker-compose  Docker deployment
+│
+├── src/
+│   ├── detectors/               30 vulnerability detection modules
+│   │   ├── injection/           sqli, nosql, command_injection, ssti, xxe, ssrf
+│   │   ├── xss/                 DOM/Reflected/Stored/AJAX XSS
+│   │   ├── auth/                csrf, oauth, saml, idor, jwt
+│   │   ├── infrastructure/      headers, cors, tls_crypto, websocket, smuggling, cache, clickjacking
+│   │   ├── exposure/            info_disclosure, sensitive_files, debug_endpoints, directory_listing, open_redirect, js_storage, file_upload
+│   │   └── api/                 api_security (OpenAPI/GraphQL/mass assignment/BOLA)
+│   ├── engine/                  HTTP client, passive proxy, spider, WAF bypass executor, session manager
+│   ├── payloads/                500+ payloads (SQLi, XSS, SSTI, SSRF, traversal, injection)
+│   ├── waf/                     8-type fingerprinting + adaptive bypass engine
+│   ├── oob/                     HTTP + DNS dual-channel callback server
+│   ├── compliance/              PCI-DSS v4.0, HIPAA, SOC2, ISO 27001
+│   ├── reporting/               HTML reports (dark mode, heatmap, CSV export) + CVSS calculator
+│   └── plugins/                 YAML hot-reload plugin loader
+│
+├── plugins/                     10 built-in YAML detection rules
+├── scripts/                     NVD CVE downloader (200K+) + matcher
+├── tests/                       250 tests (230 unit + 20 integration)
+└── docs/                        SAML attacks, WAF bypass, OOB setup, auth macros
+```
 
-All product names, logos, and brands mentioned in this document are property of their respective owners. "Burp Suite" is a trademark of PortSwigger Ltd. "Invicti" is a trademark of Invicti Ltd. Comparative analysis is based on publicly available information and independent evaluation.
+## Requirements
 
-**Attributions:**
-- HTTP Request Smuggling detection based on research by James Kettle (PortSwigger Research)
-- OWASP Top 10 © The OWASP Foundation (CC-BY-SA)
-- MITRE ATT&CK © The MITRE Corporation
-- NVD/CVE data provided by NIST National Vulnerability Database
-- PCI-DSS is a standard of the PCI Security Standards Council. This tool is NOT an ASV-certified scanner.
-- HIPAA/SOC2/ISO 27001 compliance mapping is for reference only — not an official certification.
+- **Python 3.9+**
+- **Playwright + Chromium** (~150MB) — optional, `--no-browser` uses aiohttp/urllib fallback
+- **aiohttp** >= 3.9 — auto-installed by `install.py`
+- **NVD API key** — optional, free from [nvd.nist.gov](https://nvd.nist.gov/developers/request-an-api-key)
+
+## Running Against Production Systems
+
+When scanning internal production systems:
+
+1. **Start with `--policy safe`** — passive-only, zero attack traffic. Identifies exposed secrets, missing headers, info leakage with no risk.
+2. **Then `--policy owasp-top10`** — non-destructive active checks. Injection probes with read-only payloads.
+3. **Finally `--policy full`** — includes destructive checks. Run during maintenance windows only.
+4. **Use `--internal` flag** for internal apps — adjusts severity ratings (e.g., HSTS requirement downgraded for internal-only apps).
+5. **Always use `--resume`** for large scans — survives network interruptions.
+
+### Internal Network Example
+
+```bash
+# Phase 1: Safe reconnaissance (can run any time)
+python cli.py --url https://internal-app.corp.local --policy safe --internal --output phase1_safe.json
+
+# Phase 2: Non-destructive active scan (business hours OK)
+python cli.py --url https://internal-app.corp.local --policy owasp-top10 --internal --output phase2_owasp.json
+
+# Phase 3: Full assessment (maintenance window)
+python cli.py --url https://internal-app.corp.local --policy full --internal \
+  --proxy http://corp-proxy:8080 \
+  --custom-header "Authorization: Bearer $(vault read -field=token secret/scan-token)" \
+  --compliance pci --fail-on high --output phase3_full.json
+```
+
+## Extending (Plugin System)
+
+Drop YAML files in `plugins/` — hot-reloaded, no restart needed:
+
+```yaml
+name: "Detect Internal Admin Panel"
+severity: High
+category: "Exposed Admin"
+description: "Admin panel without authentication"
+priority: 90
+detection:
+  response:
+    status: [200]
+    body_contains: ["admin", "dashboard"]
+payload:
+  method: GET
+  path: "/admin"
+remediation: "Restrict to internal IP ranges with SSO authentication."
+```
 
 ---
 
-## 中文
+## <a name="chinese">中文文档</a>
 
-第一梯队开源 Web 应用 DAST 安全扫描器。50+ 漏洞类别，被动流量分析，CVE 知识库 (200K+)，PCI-DSS/HIPAA/SOC2/ISO 27001 合规报告，HTML 专业报告（仪表盘+热力图），YAML 插件热加载系统，SAML 2.0 九向量深度攻击。
+生产级开源 Web 应用 DAST 扫描器。30 个检测模块、WAF 自适应绕过、OOB 盲检测（HTTP+DNS）、漏洞利用验证、API 安全分析、合规报告。
 
 ### 快速开始
 
 ```bash
-# 1. 安装
-pip install playwright pyyaml
-playwright install chromium
-
-# 2. 扫描
-python scripts/web_auto_scanner.py --url https://target.com --output report.json
-
-# 3. 报告
-python scripts/html_reporter.py --report report.json --output report.html
-
-# 4. CVE 匹配 (可选: 首次需下载 NVD 数据库 ~50MB)
-python scripts/nvd_downloader.py --init
-python scripts/cve_matcher.py --match '{"nginx":"1.31.1","react":"18.2.0"}'
-
-# 5. 合规报告 (可选)
-python scripts/compliance_reporter.py --report report.json --framework pci
+python install.py
+python cli.py --url https://目标站点.com --policy full
 ```
 
-### 扫描器架构
+### 扫描策略
 
-```
-web_auto_scanner.py        ← 主引擎 (19 检测方法 + 6 引擎组件)
-    ├── PassiveProxy           被动流量分析 (拦截所有请求/响应)
-    ├── SessionManager         自动发现登录 → 认证 → Token维护 → 双账号IDOR
-    ├── ConcurrentScanner      并发引擎 (4-6x, 连接池复用, 智能节流)
-    ├── DedupEngine            同根因去重 + 多源置信度计算
-    ├── BrowserPool            多浏览器Context并行池
-    └── ScanPersistence        SQLite持久化 + 历史对比 + 修复验证
+| 策略 | 破坏性 | 速率 | 页数 | 场景 |
+|------|:---:|:---:|:---:|------|
+| `safe` | 否 | 2/s | 50 | 生产环境被动监控 |
+| `owasp-top10` | 否 | 3/s | 100 | OWASP 合规审计 |
+| `pci-dss` | 是 | 4/s | 200 | 支付卡环境评估 |
+| `full` | 是 | 6/s | 500 | 全面渗透测试 |
+| `quick` | 否 | 10/s | 20 | 5 分钟快速排查 |
 
-cve_matcher.py              ← 42 内置 CVE + NVD API
-nvd_downloader.py           ← NVD 200K+ CVE 下载 (SQLite缓存)
-compliance_reporter.py      ← PCI-DSS/HIPAA/SOC2/ISO27001 自动映射
-openapi_parser.py           ← Swagger/GraphQL Schema 解析 + 测试用例生成
-html_reporter.py            ← HTML 专业报告 (仪表盘/热力图/合规摘要)
-plugin_loader.py            ← YAML 插件引擎 (12 条件类型, 热加载)
-```
+### 对内部生产系统扫描的建议
+
+1. **先用 `--policy safe`** — 纯被动，零攻击流量，识别密钥泄露、缺少安全头、信息泄露
+2. **再用 `--policy owasp-top10`** — 非破坏性主动检测，只读载荷
+3. **最后 `--policy full`** — 包含破坏性检测，仅在维护窗口运行
+4. **内部应用加 `--internal`** — 自动调整严重级别
+5. **大站加 `--resume`** — 断点续扫，不怕网络中断
 
 ### CI/CD 集成
 
 ```bash
-# GitHub Actions / GitLab CI / Jenkins
-python scripts/web_auto_scanner.py --url $TARGET_URL --quick --fail-on critical
-
-# 增量扫描 (基于 baseline)
-python scripts/web_auto_scanner.py --url $TARGET_URL --incremental --baseline baseline.json
-
-# 仅被动模式 (生产环境安全)
-python scripts/web_auto_scanner.py --url $TARGET_URL --passive-only
+python cli.py --url $TARGET_URL --policy pci-dss --fail-on critical --compliance pci
 ```
 
-退出码: `0`=无漏洞, `2`=中危, `3`=高危, `4`=严重 (阻断CI)
+退出码: `0`=无漏洞, `2`=中危, `3`=高危, `4`=严重
 
-### ⚠️ 法律声明
+---
 
-**本工具仅限授权安全测试使用。** 使用前必须获得目标系统所有者的书面授权。未经授权的扫描在大多数国家和地区属于违法行为。作者不对任何滥用行为承担责任。
+## ⚠️ Legal Disclaimer
 
-所有提及的产品名称、商标均为各自所有者的财产。竞品对比基于公开信息和独立评估。PCI-DSS 为 PCI 安全标准委员会的标准——本工具非 ASV 认证扫描器。HIPAA/SOC2/ISO 27001 合规映射仅供参考。漏洞检测方法基于 OWASP、PortSwigger Research、MITRE ATT&CK 等公开安全研究成果。
+This tool is for **authorized security testing only**. You must have written authorization from the target system owner before use. Unauthorized scanning is illegal.
+
+---
+
+MIT License — 2024-2026

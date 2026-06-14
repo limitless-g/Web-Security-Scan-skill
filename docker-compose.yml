@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  scanner:
+    build: .
+    image: websec-scanner:7.5
+    entrypoint: ["python", "cli.py"]
+    # Example: docker compose run --rm scanner --url https://target.com
+    ports:
+      - "8889:8889"
+    volumes:
+      - ./report.json:/app/report.json
+      - ./report.html:/app/report.html
+      - ~/.websec:/root/.websec
+    environment:
+      - NVD_API_KEY=${NVD_API_KEY:-}
+    networks:
+      - scan-net
+
+  oob:
+    build: .
+    image: websec-scanner:7.5
+    entrypoint: ["python", "src/oob/callback.py", "--http-port", "8889"]
+    ports:
+      - "8889:8889"
+    networks:
+      - scan-net
+
+  test-server:
+    image: python:3.12-slim
+    entrypoint: ["python", "/app/tests/test_server.py"]
+    volumes:
+      - .:/app
+    ports:
+      - "8765:8765"
+    networks:
+      - scan-net
+
+networks:
+  scan-net:
+    driver: bridge

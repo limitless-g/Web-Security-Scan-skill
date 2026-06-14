@@ -1,41 +1,73 @@
-# Python
+# ── Python ──
 __pycache__/
 *.py[cod]
+*.pyo
 *.so
 *.egg-info/
 dist/
 build/
+.eggs/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Virtual environments ──
 .venv/
 venv/
+env/
+.env.local
 
-# NVD Cache (large binary, user downloads separately)
+# ── NVD Cache (large binary, user downloads separately) ──
 nvd_cache.db
 nvd_feeds/
-*.db
+*.db-journal
+*.db-wal
 
-# Scan outputs
+# ── Scan outputs ──
 *_report.json
 *_report.html
 *.json.gz
+report.*
 scan_results/
 output/
+reports/
 
-# IDE
+# ── IDE ──
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
+.settings/
 
-# OS
+# ── OS ──
 .DS_Store
 Thumbs.db
 desktop.ini
+$RECYCLE.BIN/
 
-# Temp
+# ── Temp ──
 /tmp/
 *.tmp
 *.log
 
-# Playwright browsers (user installs separately)
+# ── Playwright browsers ──
 .playwright/
+
+# ── Docker ──
+docker-compose.override.yml
+
+# ── Secrets / Credentials ──
+*.pem
+*.key
+.env
+credentials.json
+auth_macros.json
+
+# ── Coverage ──
+htmlcov/
+.coverage
+coverage.xml
