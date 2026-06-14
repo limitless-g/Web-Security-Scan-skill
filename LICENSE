@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Web Security Full Assessment Contributors
+Copyright (c) 2024-2026 Web Security Scanner Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,18 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+## Third-Party Notices
+
+This software includes or depends on the following open-source components:
+
+| Component | License | Usage |
+|-----------|---------|-------|
+| Playwright | Apache 2.0 | Browser automation for SPA rendering |
+| PyYAML | MIT | YAML parsing for plugins and configuration |
+| aiohttp | Apache 2.0 | Async HTTP client (curl fallback mode) |
+
+NVD CVE database data is provided by the National Institute of Standards and
+Technology (NIST) under the NVD Terms of Use.
